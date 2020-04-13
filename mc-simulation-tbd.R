@@ -115,4 +115,52 @@ return_expscore <- function(reps) {
   return(expected_score)
 }
 
+# Maximum Likelihood Estimators
 
+# Goal: Finding the estimator with the greatest likelihood of describing the 
+# population distribution that x have been drawn from
+
+# Known: Data comes from a Normal distribution with unknown mean
+
+# neglogLikelihood returns the negative log of the pdf of the Normal 
+# distribution
+
+neglogLikelihood <- function(mu, x) {
+  logF = dnorm(x, mean = mu, sd = 1, log = TRUE)
+  return(-sum(logF)) 
+}
+
+x = c(-0.5, 1.0, 0.2, -0.3, 0.5, 0.89, -0.11, -0.71, 1.0, -1.3, 0.84)
+n = length(x)
+
+mu_init = 1.0
+
+out  = optim(mu_init, neglogLikelihood, gr = NULL, x, method = "L-BFGS-B", lower = -Inf, upper = Inf)
+
+print(out$par)
+print(mean(x))
+
+mu <- seq(-0.1, 0.3, length = 101)
+
+plot(mu, neglogL, pch="-")
+points(out$par, out$value, col="red", pch=0)
+neglogL <- apply( matrix(mu), 1, neglogLikelihood, x)
+
+# The algorithm finds the same value that is found when visualising the 
+# likelihood function with some values plugged in for parameter mu.
+
+# EX
+# Searched: p, probability of obtaining a head
+
+neglogLikelihood <- function(probh, n, x) {
+  logF = dbinom(x, n, prob = c(probh, 1-probh), log = TRUE)
+  return(-sum(logF)) 
+}
+
+x = c(3, 2, 4, 5, 2)
+n = 10
+
+p_init = 0.5
+out  = optim(p_init, neglogLikelihood, gr = NULL, x, n, method = "L-BFGS-B", lower = 0.001, upper = 1-0.001)
+
+print(out$par)
