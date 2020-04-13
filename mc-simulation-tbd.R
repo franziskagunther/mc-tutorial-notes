@@ -86,3 +86,33 @@ ggplot(df, aes(x=reps_b, y=accuracy)) +
                 position=position_dodge(0.05)) + 
   ylab("Estimate-Exact") +
   xlab("Run")
+
+# EX(spinner modified with 5 sections and possibility to go bust)
+
+play_game <- function(){
+  results <- sample( c(-2, -1, 0, 1, 2), 20, replace=TRUE, prob = c(0.2, 0.2, 0.2, 0.2, 0.2)) 
+  print(length(results))
+  count <- 0
+  for (i in results) {
+    print(i)
+    if (i < 0) {
+      count <- 0
+    } else {
+      count <- count + i
+    }
+  }
+  return(sum(count)) # function returns the sum of all the spins 
+}
+
+return_expscore <- function(reps) {
+  score_per_game = integer(reps)
+  
+  for ( it in 1:reps ) {
+    score_per_game[it] <- play_game() # play the game by calling the function
+  }
+  
+  expected_score <- mean(score_per_game)
+  return(expected_score)
+}
+
+
