@@ -31,7 +31,7 @@ for (r in 1:nrow(accuracy_n)) {
     sims <- rgamma(n_samples[r], shape = 1, scale = 2) # simulate n_samples samples from a Gamma distribution 
                                                        # with above specified properties
     
-    mc_integral[rep] <- sum(sims >= 1 & sims <= 3)/n_samples[r] # compute proportion of samples in the specified range
+    mc_integral[rep] <- sum(sims >= 1 & sims <= 4)/n_samples[r] # compute proportion of samples in the specified range
   }
   
   for (c in 1:ncol(accuracy_n)) { 
