@@ -59,45 +59,30 @@ ggplot(df, aes(x=ssize, y=mean)) +
   ylab("Estimate-Exact") +
   xlab("Run")
 
-# Could be improved by running the simulation of a sample of 100/1000/.. multiple times and 
-# plotting their mean and standard deviation
+# EX(revisited)
 
-# sample() is used to sample from a binomial (can be used with a vector of probabilities for each
-# of the options), rnorm() is used to sample from a normal
+reps_b <- c(100, 1000, 10000, 100000) 
+n_samples_b <- 10
+mc_exact_b <- pbinom(3, 10, lower.tail=FALSE, prob=0.5)
+accuracy <- integer(length(reps_b)) # vector to record accuracy values
+accuracy_sd <- integer(length(reps_b)) # vector to record accuracy sd values
 
-# It turns out that we are getting the probabilities reasonably approximated for Binomial distributions
-# well.
-
-# exercise
-
-runs <- 100 # number of simulations to run
-flips_per_experiment <- c(10, 50, 100, 1000)
-mc_exact <- pbinom(3, 10, 0.5, lower.tail=FALSE)
-
-sample_sizes <- integer(length(flips_per_experiment)) 
-accuracy <- integer(length(flips_per_experiment))
-
-for (i in 1:length(flips_per_experiment)) {
-  sample_sizes[i] <- flips_per_experiment[i]
-  greater_than_three <- integer(runs)
-  for ( j in 1:runs ) {
-    coin_flips <- sample(c(0,1), sample_sizes[i], replace=T, prob=c(0.5, 0.5))
-    compare_value <- 3/10 * sample_sizes[i]
-    greater_than_three[j] <- ( sum(coin_flips) > compare_value )
+for (i in 1:length(reps_b)) {
+  greater_than_three <- integer(reps_b[i])
+  for ( j in 1:reps_b[i] ) {
+    coin_flips <- sample(c(0,1), n_samples_b, replace=T)
+    greater_than_three[j] <- ( sum(coin_flips) > 3 )
   }
-  accuracy[i] <- ( sum(greater_than_three)/runs ) - mc_exact
+  accuracy[i] <- mean(greater_than_three - mc_exact_b) 
+  accuracy_sd[i] <- sd(greater_than_three - mc_exact_b) 
 }
 
-library(ggplot2)
+df = data.frame(reps_b, accuracy, accuracy_sd)
 
-df = data.frame(sample_sizes, accuracy)
-
-ggplot(df, aes(x=sample_sizes, y=accuracy)) + 
+ggplot(df, aes(x=reps_b, y=accuracy)) + 
   geom_line() +
   geom_point() +
+  geom_errorbar(aes(ymin=accuracy-accuracy_sd, ymax=accuracy+accuracy_sd), width=.2,
+                position=position_dodge(0.05)) + 
   ylab("Estimate-Exact") +
   xlab("Run")
-
-# I am unsure if this is correct. With increasing size of the single samples, I get an increasing 
-# number of samples with a number of heads greater than 3/10 of their size, which is why accuracy 
-# decreases! This can't be correct!
